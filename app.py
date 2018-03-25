@@ -31,6 +31,7 @@ class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r"/", HomeHandler),
+            (r"/admin", AdminHandler),
         ]
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -71,7 +72,12 @@ class HomeHandler(BaseHandler):
         settings = self.db.query('select * from settings limit 1')
         # for item in settings:
         #     self.write(item)
-        self.render("index.html", settings=settings[0])
+        self.render("layout/front.html", settings=settings[0])
+
+
+class AdminHandler(BaseHandler):
+    def get(self):
+        self.render("layout/admin.html")
 
 
 def main():

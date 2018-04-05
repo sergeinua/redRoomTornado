@@ -32,6 +32,8 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", HomeHandler),
             (r"/admin", AdminHandler),
+            (r"/admin/message", AdminMessageHandler),
+            (r"/admin/settings", AdminSettingsHandler),
         ]
         settings = dict(
             template_path=os.path.join(os.path.dirname(__file__), "templates"),
@@ -59,25 +61,44 @@ class Application(tornado.web.Application):
 
 
 class BaseHandler(tornado.web.RequestHandler):
+    def data_received(self, chunk):
+        pass
+
     @property
     def db(self):
         return self.application.db
 
-    # def get_settings(self):
-    #     return self.db.get("SELECT * FROM settings")
-
 
 class HomeHandler(BaseHandler):
     def get(self):
-        settings = self.db.query('select * from settings limit 1')
-        # for item in settings:
-        #     self.write(item)
-        self.render("layout/front.html", settings=settings[0])
+        settings = self.db.get("select * from settings where id=1")
+        self.render("layout/front.html", settings=settings)
 
 
 class AdminHandler(BaseHandler):
     def get(self):
         self.render("layout/admin.html")
+
+
+class AdminMessageHandler(BaseHandler):
+    def get(self):
+        self.render("message.html")
+
+
+class AdminSettingsHandler(BaseHandler):
+    def get(self):
+        settings = self.db.get("select * from settings where id=1")
+        self.render("settings.html", settings=settings)
+
+    def post(self):
+        first_block_text = self.get_argument("first_block_text")
+        second_block_text = self.get_argument("second_block_text")
+        tel_num = self.get_argument("tel_num")
+        email = self.get_argument("email")
+        insta_link = self.get_argument("insta_link")
+        youtube_link = self.get_argument("youtube_link")
+        facebook_link = self.get_argument("facebook_link")
+        self.write(first_block_text)
 
 
 def main():
